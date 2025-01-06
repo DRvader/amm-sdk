@@ -13,7 +13,9 @@ const MIDI_NUMBER_A4: i8 = 69;
 /// Represents a note in a musical composition.
 #[derive(Debug, Default, Eq, JsonDeserialize, JsonSerialize)]
 pub struct Note {
-  /// The unique identifier of the note.
+  /// The locally unique identifier of the note (unified between timeslice and staff views).
+  pub note_id: usize,
+  /// The globally unique identifier of the note.
   pub id: usize,
   /// The pitch of the note.
   pub pitch: Pitch,
@@ -29,8 +31,10 @@ impl Note {
   /// Creates a new note with the given pitch, duration, and optional accidental modifier.
   #[must_use]
   pub fn new(pitch: Pitch, duration: Duration, accidental: Option<Accidental>) -> Self {
+    let id = generate_id();
     Self {
-      id: generate_id(),
+      id,
+      note_id: id,
       pitch,
       duration,
       accidental: accidental.unwrap_or_default(),
@@ -237,6 +241,7 @@ impl Clone for Note {
   fn clone(&self) -> Self {
     Self {
       id: generate_id(),
+      note_id: self.note_id,
       pitch: self.pitch,
       duration: self.duration,
       accidental: self.accidental,
